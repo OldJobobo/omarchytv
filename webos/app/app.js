@@ -7,6 +7,7 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   var APP_VERSION = "2.13.9";   // keep in step with webos/app/appinfo.json and tizen/config.xml (checked by tests)
 
   var DATA = window.OMARCHY_DATA || { version: APP_VERSION, themes: {}, wallpapers: {}, logo: "OMARCHY TV", notice: "" };
+  var HOME_PROFILE = window.OmarchyHomeProfile ? window.OmarchyHomeProfile.read(DATA.homeProfile) : {};
   var START_TIME = Date.now() - (42 * 60 * 1000); // default 42m uptime look
 
   var STRINGS = {
@@ -150,10 +151,10 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     appOrder: []   // app ids in the user's order; apps not listed keep their DEFAULT_APPS position after them
   };
 
-  var cfg = Object.assign({}, DEFAULT_CFG);
+  var cfg = window.OmarchyHomeProfile ? window.OmarchyHomeProfile.defaults(DEFAULT_CFG, HOME_PROFILE.defaults) : Object.assign({}, DEFAULT_CFG);
   try {
     var saved = localStorage.getItem("omarchytv_cfg_2110");
-    if (saved) cfg = Object.assign({}, DEFAULT_CFG, JSON.parse(saved));
+    if (saved) cfg = Object.assign({}, cfg, JSON.parse(saved));
   } catch (e) {}
 
   function saveCfg() {
@@ -185,6 +186,8 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     { id: "browser", name: "Web Browser", appId: "com.webos.app.browser", brand: "browser", bg: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", fg: "#38bdf8", sub: "WWW" },
     { id: "settings", name: "LG Settings", appId: "com.palm.app.settings", brand: "settings", bg: "linear-gradient(135deg, #27272a 0%, #18181b 100%)", fg: "#f43f5e", sub: "webOS" }
   ];
+
+  if (HOME_PROFILE.apps) DEFAULT_APPS = window.OmarchyHomeProfile.apps(DEFAULT_APPS, HOME_PROFILE.apps);
 
   // Samsung Tizen build: tizen-shim.js discovers the installed apps and hands them over as
   // window.OMARCHY_TIZEN_APPS and/or the "omarchy-tizen-apps" event (detail = the same array), items
@@ -243,6 +246,8 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     { id: "hdmi3", name: "HDMI 3", sub: "HDMI 3", appId: "com.webos.app.hdmi3" },
     { id: "hdmi4", name: "HDMI 4", sub: "HDMI 4", appId: "com.webos.app.hdmi4" }
   ];
+
+  if (HOME_PROFILE.inputs) TV_INPUTS = HOME_PROFILE.inputs;
 
   // Samsung Tizen build: the adapter lists the TV's real sources as window.OMARCHY_TIZEN_INPUTS and/or the
   // "omarchy-tizen-inputs" event (detail = the full list), items { id, name, sub? }, and switches them with
@@ -520,6 +525,10 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     var upMin = Math.max(1, Math.floor((Date.now() - START_TIME) / 60000));
     var upStr = upMin >= 60 ? (Math.floor(upMin / 60) + " h " + (upMin % 60) + " min") : (upMin + " min");
     var info = document.getElementById("term-info");
+    if (HOME_PROFILE.terminalSummary) {
+      info.textContent = "theme " + cfg.theme + "\n" + HOME_PROFILE.terminalSummary + "\nOmarchyTV " + APP_VERSION;
+      return;
+    }
     info.innerHTML =
       '<span style="color:' + t.accent + '">' + tr("term_theme") + '</span><span style="color:' + t.fg + '">' + cfg.theme + '</span>\n' +
       '<span style="color:' + t.accent + '">' + tr("term_net") + '</span><span style="color:' + t.fg + '">Wi-Fi</span>\n' +

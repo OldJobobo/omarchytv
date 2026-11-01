@@ -33,7 +33,7 @@ function fakeElement() {
 }
 
 // Boots app.js. `tizen` is the fake window.tizen (omit for the plain webOS/browser path).
-function boot({ tizen, apps, cfg, inputs, switchInput, webOS, palmServiceBridge } = {}) {
+function boot({ tizen, apps, cfg, inputs, switchInput, webOS, palmServiceBridge, profile } = {}) {
   const byId = {};
   const listeners = {};
   const store = {};
@@ -68,7 +68,11 @@ function boot({ tizen, apps, cfg, inputs, switchInput, webOS, palmServiceBridge 
   if (inputs) ctx.OMARCHY_TIZEN_INPUTS = inputs;
   if (switchInput) ctx.OMARCHY_TIZEN_SWITCH_INPUT = switchInput;
   vm.createContext(ctx);
-  for (const [f, src] of SRC) vm.runInContext(src, ctx, { filename: f });
+  if (profile) vm.runInContext(fs.readFileSync(path.join(APP, 'homeprofile.js'), 'utf8'), ctx, {filename:'homeprofile.js'});
+  for (const [f, src] of SRC) {
+    vm.runInContext(src, ctx, { filename: f });
+    if (f === 'data.js' && profile) ctx.OMARCHY_DATA.homeProfile = profile;
+  }
   return {
     ctx, store,
     tiles: () => byId["dock-strip"].children,
@@ -76,6 +80,7 @@ function boot({ tizen, apps, cfg, inputs, switchInput, webOS, palmServiceBridge 
     toast: () => (byId.toast ? byId.toast.textContent : ""),
     inputTiles: () => byId["ws2-grid"].children,
     inputTitle: () => byId["ws2-title"].textContent,
+    terminalInfo: () => byId["term-info"].textContent,
     // A short remote press: keydown then keyup, through the app's own key handlers.
     press: (key) => ["keydown", "keyup"].forEach((t) => (listeners[t] || []).forEach((f) => f({ type: t, key, keyCode: key === "Enter" ? 13 : 0, preventDefault() {} }))),
     grid: () => byId["ws3-grid"].children,
