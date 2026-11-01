@@ -10,7 +10,7 @@ From the fork checkout:
 ./fork/emulator run
 ```
 
-This starts the owned VM if needed, launches the already-installed OmarchyTV app, and opens a windowed VNC viewer. The guest remains 1920×1080; resizing the viewer does not change the app's viewport. There is no autostart service. RAM is consumed only while the VM runs.
+This starts the owned VM if needed, waits for the SDK welcome app to finish booting, launches the already-installed OmarchyTV app, verifies that it is actually visible, and opens a windowed VNC viewer unless one is already connected. The guest remains 1920×1080; resizing the viewer does not change the app's viewport. There is no autostart service. RAM is consumed only while the VM runs.
 
 ```sh
 ./fork/emulator status

@@ -82,9 +82,22 @@ class EmulatorTests(unittest.TestCase):
             qmp.assert_not_called()
 
     def test_launch_waits_through_cold_boot_inspector_reset(self):
-        with patch.object(self.emu, 'sdk') as sdk, patch.object(self.emu, 'targets', side_effect=[ConnectionResetError('not ready'), [{'url':'file:///apps/com.omarchytv.home/index.html'}]]), patch('fork.emulator.time.sleep'):
+        with patch.object(self.emu, 'wait_ready'), patch.object(self.emu, 'wait_boot'), patch.object(self.emu, 'app_visible', return_value=True), patch.object(self.emu, 'sdk') as sdk, patch.object(self.emu, 'targets', side_effect=[ConnectionResetError('not ready'), [{'url':'file:///apps/com.omarchytv.home/index.html'}]]), patch('fork.emulator.time.sleep'):
             self.assertIn('launched', self.emu.launch())
             sdk.assert_called_once_with('ares-launch.js', ['com.omarchytv.home'])
+
+    def test_inspector_target_is_not_enough_for_launch_success(self):
+        app = [{'url':'file:///apps/com.omarchytv.home/index.html'}]
+        with patch.object(self.emu, 'wait_ready'), patch.object(self.emu, 'wait_boot'), patch.object(self.emu, 'sdk'), patch.object(self.emu, 'targets', return_value=app), patch.object(self.emu, 'app_visible', side_effect=[False, True]) as visible, patch('fork.emulator.time.sleep'):
+            self.assertIn('visible', self.emu.launch())
+            self.assertEqual(visible.call_count, 2)
+
+    def test_sdk_welcome_boot_is_observed_once_per_owned_pid(self):
+        welcome = [{'url':'file:///usr/palm/applications/com.webos.app.emulwelcome/index.html'}]
+        with patch.object(self.emu, 'owned_pid', return_value=42), patch.object(self.emu, 'targets', side_effect=[[], welcome]) as targets, patch('fork.emulator.time.sleep'):
+            self.emu.wait_boot();self.emu.wait_boot()
+            self.assertEqual(targets.call_count, 2)
+            self.assertEqual(json.loads((self.emu.run/'boot-ready.json').read_text())['pid'], 42)
 
     def test_inspector_redirects_never_follow_a_nonlocal_target(self):
         with patch.object(self.emu, 'owned_pid', return_value=99), patch('fork.emulator.http.client.HTTPConnection') as client:

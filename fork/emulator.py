@@ -143,6 +143,7 @@ class Emulator:
                 try:probe.bind(('127.0.0.1', port))
                 except OSError:raise EmulatorError('Local port already in use: '+str(port))
         if self.pidfile.exists():self.pidfile.unlink()
+        (self.run/'boot-ready.json').unlink(missing_ok=True)
         if self.sock.exists():
             if not self.sock.is_socket():raise EmulatorError('Unexpected file at the VM socket path')
             self.sock.unlink()
@@ -237,16 +238,37 @@ class Emulator:
         (self.base/'installed.json').write_text(json.dumps(record, indent=2)+'\n')
         return 'Installed in the isolated VM only'
 
-    def launch(self):
-        self.sdk('ares-launch.js', [APP_ID])
-        deadline = time.monotonic()+20
+    def wait_boot(self):
+        pid = self.owned_pid();marker = self.run/'boot-ready.json'
+        if marker.exists() and json.loads(marker.read_text()).get('pid') == pid:return
+        deadline = time.monotonic()+60
         while time.monotonic() < deadline:
             try:
-                if any(t.get('url', '').endswith('/'+APP_ID+'/index.html') for t in self.targets()):
-                    return 'OmarchyTV launched in the VM'
+                if any(t.get('url', '').endswith('/com.webos.app.emulwelcome/index.html') for t in self.targets()):
+                    time.sleep(.75);marker.write_text(json.dumps({'pid':pid})+'\n');return
             except (OSError, ValueError, http.client.HTTPException):pass
             time.sleep(.5)
-        raise EmulatorError('Launch returned, but the app inspector target was not ready')
+        raise EmulatorError('SDK welcome app did not finish booting; no launcher takeover attempted')
+
+    def app_visible(self):
+        probe = subprocess.run([self.config['sdkNode'], str(self.root/'fork/emulator-cdp.cjs'),
+                '({ready:!!window.OmarchyTestAPI&&document.readyState==="complete",visible:!document.hidden})'],
+                text=True, capture_output=True, timeout=20)
+        if probe.returncode:return False
+        state = json.loads(probe.stdout)
+        return state.get('ready') is True and state.get('visible') is True
+
+    def launch(self):
+        self.wait_ready();self.wait_boot()
+        self.sdk('ares-launch.js', [APP_ID])
+        deadline = time.monotonic()+30
+        while time.monotonic() < deadline:
+            try:
+                if any(t.get('url', '').endswith('/'+APP_ID+'/index.html') for t in self.targets()) and self.app_visible():
+                    return 'OmarchyTV launched and visible in the VM'
+            except (OSError, ValueError, http.client.HTTPException, subprocess.TimeoutExpired):pass
+            time.sleep(.5)
+        raise EmulatorError('Launch returned, but the launcher was not visibly ready in the VM')
 
     def targets(self):
         if not self.owned_pid():return []
@@ -316,7 +338,7 @@ def main():
         elif args.command == 'run':
             print(emu.start())
             if (emu.base/'installed.json').exists():print(emu.launch())
-            message = emu.view()
+            message = 'Viewer already connected' if emu.qmp('query-vnc').get('clients') else emu.view()
         elif args.command == 'view':message = emu.view(args.fullscreen)
         elif args.command == 'stop':message = emu.stop(args.force)
         elif args.command == 'launch':message = emu.launch()
