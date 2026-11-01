@@ -27,6 +27,14 @@ class EmulatorTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def test_view_uses_visible_local_cursor_without_resizing_guest(self):
+        with patch.object(self.emu, 'qmp'), patch('fork.emulator.shutil.which', return_value='/usr/bin/remote-viewer'), patch('fork.emulator.subprocess.run') as run:
+            self.emu.view()
+        command = run.call_args.args[0]
+        self.assertIn('--cursor=local', command)
+        self.assertIn('--auto-resize=never', command)
+        self.assertEqual(command[-1], 'vnc://127.0.0.1:15901')
+
     def test_command_has_no_bridge_shares_host_audio_or_writable_vendor_disk(self):
         command = self.emu.command();net = command[command.index('-netdev')+1]
         self.assertIn('restrict=on', net);self.assertIn('hostfwd=tcp:127.0.0.1:', net)

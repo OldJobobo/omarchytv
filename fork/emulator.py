@@ -295,7 +295,8 @@ class Emulator:
         home = member(self.base, 'home')
         env = {**os.environ, 'HOME':str(home), 'XDG_CONFIG_HOME':str(home/'.config'), 'XDG_CACHE_HOME':str(home/'.cache'),
                'XDG_STATE_HOME':str(home/'.state'), 'GSETTINGS_BACKEND':'memory'}
-        cmd = ['remote-viewer', '--auto-resize=never', '--zoom=75', '--title=OmarchyTV · webOS 3 emulator']
+        # webOS can advertise an invisible VNC cursor; keep a host-side pointer visible.
+        cmd = ['remote-viewer', '--cursor=local', '--auto-resize=never', '--zoom=75', '--title=OmarchyTV · webOS 3 emulator']
         if fullscreen:cmd.append('--full-screen')
         cmd.append('vnc://127.0.0.1:'+str(self.config['ports']['vnc']))
         with (self.run/'viewer.log').open('ab') as log:
