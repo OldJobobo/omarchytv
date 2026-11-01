@@ -10,6 +10,11 @@ test('legacy canvas overlay has explicit offsets instead of relying on CSS inset
   const html = fs.readFileSync(path.join(root, 'webos/app/saver/index.html'), 'utf8');
   assert.match(html, /\[data-text-effect\]>canvas\{top:0;left:0;width:100%!important;height:100%!important\}/);
 });
+test('block-art saver uses full cell-size glyphs without extra line spacing', () => {
+  const html = fs.readFileSync(path.join(root, 'webos/app/saver/index.html'), 'utf8');
+  assert.match(html, /pre\{[^}]*line-height:1;/);
+  assert.match(html, /fontScale:1,/);
+});
 function legacy() {
   const context = vm.createContext({});
   vm.runInContext('window=this; Object.assign=undefined; Array.from=undefined; String.prototype.padStart=undefined; function Element(){this.children=[];} Element.prototype.appendChild=function(n){this.children.push(n);}; document={createTextNode:function(t){return {text:t};}};', context);
