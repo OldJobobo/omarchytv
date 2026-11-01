@@ -9,6 +9,7 @@
     "feat/home-profile",
     "feat/compact-tv-menu",
     "fix/legacy-saver-bundle",
-    "fix/fullscreen-saver-canvas"
+    "fix/fullscreen-saver-canvas",
+    "fix/bar-clock-centering"
   ]
 }
