@@ -8,7 +8,7 @@ const runtime = fs.readFileSync(path.join(root, 'webos/tools/saver-build/legacy-
 const bundle = fs.readFileSync(path.join(root, 'launcher/app/src/main/assets/saver/tte-bundle.js'), 'utf8');
 test('legacy canvas overlay has explicit offsets instead of relying on CSS inset', () => {
   const html = fs.readFileSync(path.join(root, 'webos/app/saver/index.html'), 'utf8');
-  assert.match(html, /\[data-text-effect\]>canvas\{top:0;left:0\}/);
+  assert.match(html, /\[data-text-effect\]>canvas\{top:0;left:0;width:100%!important;height:100%!important\}/);
 });
 function legacy() {
   const context = vm.createContext({});
