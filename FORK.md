@@ -6,7 +6,7 @@ https://github.com/OldJobobo/omarchytv
 Upstream:
 https://github.com/piermark/omarchytv
 
-This fork separates reusable source changes from one TV's configuration. The existing deployed build is recovery evidence, **not** the source tree to keep patching. No workflow command pushes, installs, reloads, launches apps, or contacts a TV.
+This fork separates reusable source changes from one TV's configuration. The existing deployed build is recovery evidence, **not** the source tree to keep patching. The `fork/dev` workflow never pushes, installs, reloads, launches apps, or contacts a TV. The separate `fork/emulator` controller operates only on the isolated localhost VM.
 
 ## Layout and branches
 
@@ -21,6 +21,7 @@ This fork separates reusable source changes from one TV's configuration. The exi
 | `.local/recovery/` | Exact previously deployed payload/package and checksums. |
 | `.local/operator/` | Private device references and separately reviewed operational/recovery helpers. |
 | `.local/builds/` | Source-derived app trees, candidate IPKs, validation logs and content manifests. |
+| `.local/emulator/` | Licensed SDK image, isolated writable VM disk, SDK developer key, local device settings and VM evidence; never publish. |
 
 Current reusable branches:
 
@@ -48,6 +49,19 @@ npm_config_cache="$PWD/.local/npm-cache" npm ci --prefix fork --ignore-scripts
 Restore the ignored profile from a **private** backup; Git does not contain or back it up. This session's original off-device artifacts remain untouched too. The example profile is a schema template, not a complete licensed asset collection or hardware inventory.
 
 `setup` installs a conservative, owned pre-push guard, preserves unrelated hooks, disables upstream pushes, and keeps `.local/` ignored even when checking out an upstream-only feature. Dependency installation is local to `fork/node_modules`; no global packages or TV dependencies are installed. The legacy webOS packaging CLI has deprecated transitive dependencies; it is an isolated off-device build tool, not shipped in the app.
+
+## Local legacy-engine testing
+
+The optional LG 3.0 emulator runs under QEMU/KVM with a read-only vendor image, a separate writable overlay, restricted networking, no shared folders and localhost-only management. It uses the actual Chromium 38 engine, not a modern-browser approximation. No VirtualBox/kernel changes or autostart service are needed on the configured host.
+
+```sh
+./fork/emulator run
+./fork/emulator status
+./fork/emulator screenshot home.png
+./fork/emulator stop
+```
+
+For automated tests, close the viewer and run `./fork/emulator smoke`. Use the separate private `emulator` build profile for debug installs; it does not alter the livingroom profile or physical TV. The legacy SDK CLI uses an existing Node 22 runtime without changing the system Node version. SDK images/keys are not in Git and require the operator's LG license acceptance. See `fork/EMULATOR.md` for commands, setup boundaries and hardware limitations.
 
 ## Routine upstream update
 
