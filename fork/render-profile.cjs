@@ -25,6 +25,10 @@ function render(app,profileDir){
   const wallpapers={};
   for(const name of Object.keys(themes))wallpapers[name]=catalog.wallpapers[name]||[];
   data.themes=themes;data.wallpapers=wallpapers;data.wallpaperIntros={};
+  if(profile.terminalLogo!==undefined){
+    if(typeof profile.terminalLogo!=='string'||!profile.terminalLogo.trim()||profile.terminalLogo.length>4096||/[\x00-\x09\x0b-\x1f\x7f]/.test(profile.terminalLogo))throw Error('Invalid terminal logo');
+    data.logo=profile.terminalLogo;
+  }
   const version=json(path.join(app,'appinfo.json')).version;data.version=version;data.homeProfile=profile.home||{};
   if(home.defaults&&home.defaults.theme&&!themes[home.defaults.theme])throw Error('Profile default theme is absent');
   fs.writeFileSync(path.join(app,'data.js'),'window.OMARCHY_DATA = '+JSON.stringify(data)+';\n');

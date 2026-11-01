@@ -89,7 +89,7 @@ The guard scans **every fork-only commit**, including private content removed be
 
 ## Private profile contract
 
-`profile.json` contains a `home` object for the optional source interface plus excluded theme IDs, manifest inspectability and an app-size budget. Existing user localStorage wins over defaults; fresh defaults do not force a theme on an existing user.
+`profile.json` contains a `home` object for the optional source interface plus excluded theme IDs, manifest inspectability and an app-size budget. Optional `terminalLogo` replaces only the terminal's wordmark at build time (plain text or block art, at most 4096 characters); omit it to retain upstream branding. Keep personal wordmarks in the ignored profile. Test the composer with `node --test fork/tests/*.test.cjs`. Existing user localStorage wins over defaults; fresh defaults do not force a theme on an existing user.
 
 `catalog.json` contains only `extraThemes` and static `wallpapers` mappings. **Stock palettes come from the selected upstream source**, so new upstream palette corrections are not frozen into an old data dump. Authored RGB values in additional palettes remain exact. Per-theme shell styles are not fabricated or inferred.
 
