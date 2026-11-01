@@ -633,6 +633,7 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   }
 
   function fetchWeather() {
+    if (!cfg.widgets.weather) return;
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + cfg.weatherLat + "&longitude=" + cfg.weatherLon + "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1";
     fetch(url).then(function (r) { return r.json(); }).then(function (j) {
       if (j && j.current) {
