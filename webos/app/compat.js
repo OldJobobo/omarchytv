@@ -152,7 +152,10 @@
       if (st && (st.indexOf("var(--") >= 0 || /(^|;)\s*gap\s*:/.test(st))) {
         el.setAttribute("data-compat-style", st);
         var resolved = resolve(st, {});
+        // Runtime visibility wins over the cached, pre-rewrite inline template.
+        var display = el.style.display;
         el.setAttribute("style", resolved);
+        el.style.display = display;
         var g = /(?:^|;)\s*gap\s*:\s*([^;]+)/.exec(resolved);
         if (g) for (var c = el.firstElementChild && el.firstElementChild.nextElementSibling; c; c = c.nextElementSibling) c.style.marginLeft = g[1];
       }
