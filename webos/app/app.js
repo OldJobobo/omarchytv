@@ -991,6 +991,25 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     renderAll();
   }
 
+  function menuIcon(icon) {
+    // Inline paths avoid missing Nerd Font glyphs on older TV firmware.
+    var paths = {
+      "󰕼": "M3 5h18v14H3z M7 5v14 M17 5v14 M3 10h4 M17 10h4 M3 14h4 M17 14h4",
+      "": "M8 3h8v5h5v8h-5v5H8v-5H3V8h5z",
+      "󰀻": "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+      "󰸌": "M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h3a5 5 0 0 0 0-10z M7 9h1 M11 6h1 M16 7h1 M6 14h1",
+      "": "M3 4h18v16H3z M3 17l6-6 4 4 3-3 5 5 M15 8h1",
+      "󰖐": "M7 18a5 5 0 1 1 1-10 6 6 0 0 1 11 3 4 4 0 0 1-1 7z",
+      "󱄄": "M3 4h18v13H3z M8 21h8 M12 17v4 M8 8l8 5 M16 8l-8 5",
+      "": "M4 6h16 M4 12h16 M4 18h16 M8 3v6 M16 9v6 M10 15v6",
+      "": "M3 4h18v16H3z M7 9l3 3-3 3 M13 15h4",
+      "󰚩": "M5 7h14v13H5z M12 3v4 M2 11v5 M22 11v5 M8 11h1 M15 11h1 M8 16h8",
+      "󰖟": "M3 12h18 M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 3c-5 5-5 13 0 18 M12 3c5 5 5 13 0 18",
+      "󰾆": "M4 19V9 M9 19V5 M14 19v-7 M19 19V3"
+    };
+    return paths[icon] ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="' + paths[icon] + '"></path></svg>' : escHtml(icon);
+  }
+
   function renderModalList() {
     var list = document.getElementById("modal-list");
     list.innerHTML = "";
@@ -999,7 +1018,7 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
       d.className = "modal-item" + (idx === state.modalIdx ? " focused" : "");
       d.setAttribute("role", "option");
       d.setAttribute("aria-selected", idx === state.modalIdx ? "true" : "false");
-      d.innerHTML = (it.icon ? '<span class="mi-icon" aria-hidden="true">' + escHtml(it.icon) + '</span>' : '') +
+      d.innerHTML = (it.icon ? '<span class="mi-icon" aria-hidden="true">' + menuIcon(it.icon) + '</span>' : '') +
         '<span class="mi-label">' + it.label + '</span><span class="mi-right">' + (it.right || "") + '</span>';
       d.onclick = function () { state.modalIdx = idx; if (it.act) it.act(); };
       list.appendChild(d);
@@ -1828,7 +1847,7 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   function openOmarchyMenu() {
     openModal("Omarchy", "", [
       { icon: "󰕼", label: "Cinemarchy", right: "C ›", act: function () { openCinemarchyModal(0); } },
-      { icon: "", label: tr("sys_plugins"), right: "›", act: openPluginsModal },
+      { icon: "", label: "Plugins", right: "›", act: openPluginsModal },
       { icon: "󰀻", label: "Apps", right: "›", act: openWalkerModal },
       { icon: "󰸌", label: tr("sys_themes"), right: "›", act: openThemesModal },
       { icon: "", label: tr("wp_title"), right: "›", act: function () { openWallpaperModal(); } },

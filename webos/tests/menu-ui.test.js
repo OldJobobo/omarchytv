@@ -94,7 +94,7 @@ test("compact root menu has icon rows and retains remote activation", () => {
   assert.strictEqual(t.byId["modal-title"].textContent, "Omarchy");
   assert.strictEqual(t.byId["modal-sub"].style.display, "none");
   assert.strictEqual(t.byId["modal-box"].className, "box");
-  assert.match(t.byId["modal-list"].children[0].innerHTML, /mi-icon.*mi-label/);
+  assert.match(t.byId["modal-list"].children[0].innerHTML, /mi-icon.*<svg.*<path.*mi-label/);
   t.press("ArrowDown"); t.press("Enter");
   assert.match(t.byId["modal-title"].textContent, /Plugins/);
   assert.strictEqual(t.byId["modal-box"].className, "box");
