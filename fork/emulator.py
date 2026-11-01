@@ -230,8 +230,10 @@ class Emulator:
                 time.sleep(.25)
             else:raise EmulatorError('Old VM launcher did not close; package was not installed')
         self.sdk('ares-install.js', [str(package)])
+        source_ref = 'refs/omarchytv/emulator-installed'
+        subprocess.run(['git', '-C', str(self.root), 'update-ref', '--create-reflog', source_ref, manifest['sourceCommit']], check=True)
         record = {'target':'isolated localhost VM only', 'appId':APP_ID, 'profile':'emulator', 'build':build,
-                  'sourceCommit':manifest['sourceCommit'], 'sha256':manifest['package']['sha256'], 'realTVTouched':False}
+                  'sourceCommit':manifest['sourceCommit'], 'sourceRef':source_ref, 'sha256':manifest['package']['sha256'], 'realTVTouched':False}
         (self.base/'installed.json').write_text(json.dumps(record, indent=2)+'\n')
         return 'Installed in the isolated VM only'
 

@@ -21,13 +21,20 @@ function assertRgba(actual,h,a,label){const parts=actual.match(/[0-9.]+/g).map(N
   const index=x=>order.includes(x.id)?order.indexOf(x.id):order.length+apps.indexOf(x);return index(a)-index(b);
  });
  changed=true;await c.evaluate('__OMARCHY_STATE.dockIdx=0;__OMARCHY_STATE.dockScroll=0;OmarchyTestAPI.switchWorkspace(0);true');
- const names=[];for(let i=0;i<expected.length;i++){names.push(await c.evaluate('document.getElementById("dock-app-name").textContent'));if(i<expected.length-1){key('right');await pause(350);}}
+ async function move(direction,index){
+  key(direction);let arrived=false;
+  for(let n=0;n<50;n++){await pause(100);if(await c.evaluate('__OMARCHY_STATE.dockIdx')===index){arrived=true;break;}}
+  assert.ok(arrived,'native '+direction+' reaches dock index '+index);await pause(150);
+ }
+ await pause(1000); // Allow the cold-launched native window to receive keyboard focus.
+ const names=[];for(let i=0;i<expected.length;i++){names.push(await c.evaluate('document.getElementById("dock-app-name").textContent'));if(i<expected.length-1)await move('right',i+1);}
  assert.deepEqual(names,expected.map(a=>a.name),'real guest keyboard reaches the authored catalog');
- for(let i=1;i<expected.length;i++){key('left');await pause(350);}
+ for(let i=expected.length-2;i>=0;i--)await move('left',i);
  for(const theme of Object.keys(data.themes)){
   if(status().viewerClients){takeover=true;throw Error('Operator attached the viewer; automation stopped without further preference writes');}
   await c.evaluate('OmarchyTestAPI.setTheme('+JSON.stringify(theme)+');OmarchyTestAPI.openAllSettingsModal();true');await pause(150);
-  const actual=await c.evaluate('(function(){var item=document.querySelector(".modal-item.focused");return {theme:__OMARCHY_CFG.theme,open:__OMARCHY_STATE.modalOpen,selected:!!item,popup:getComputedStyle(document.getElementById("modal-box")).backgroundColor,heading:getComputedStyle(document.getElementById("modal-title")).color,bg:item?getComputedStyle(item).backgroundColor:null,fg:item?getComputedStyle(item).color:null,border:item?getComputedStyle(item).borderLeftColor:null,weather:getComputedStyle(document.getElementById("wx-box")).display};})()');
+  // Selected menu rows can be intentionally borderless; check the visible dock focus border.
+  const actual=await c.evaluate('(function(){var item=document.querySelector(".modal-item.focused");return {theme:__OMARCHY_CFG.theme,open:__OMARCHY_STATE.modalOpen,selected:!!item,popup:getComputedStyle(document.getElementById("modal-box")).backgroundColor,heading:getComputedStyle(document.getElementById("modal-title")).color,bg:item?getComputedStyle(item).backgroundColor:null,fg:item?getComputedStyle(item).color:null,border:getComputedStyle(document.querySelector("#dock-strip .focused")).borderLeftColor,weather:getComputedStyle(document.getElementById("wx-box")).display};})()');
   const roles=resolver.resolve(data.themes[theme]);assert.equal(actual.theme,theme);assert.equal(actual.open,true);assert.equal(actual.selected,true);
   assertRgba(actual.popup,roles.bgAlt,.95,theme+' popup');assert.equal(actual.heading,rgb(roles.accent),theme+' heading');
   assert.equal(actual.bg,rgb(roles.selection),theme+' selection');assert.equal(actual.fg,rgb(roles.selectionFg),theme+' selected foreground');assert.equal(actual.border,rgb(roles.focus),theme+' border');

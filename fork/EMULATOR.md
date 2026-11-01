@@ -73,7 +73,7 @@ Full stock-theme Settings captures and machine-readable results stay in ignored 
 - The SDK developer key is the CLI's stock **2048-bit emulator key**, stored with restrictive permissions under the ignored emulator directory. The stale 1024-bit key bundled with the old ZIP did not authenticate. No personal TV key is copied.
 - Legacy RSA signature compatibility is scoped to this pinned localhost guest, not global SSH configuration or the TV.
 
-`.local/emulator/config.json` selects the vendor/base/overlay paths, their hash, resources, localhost ports, SDK Node runtime and developer-key path. `.local/emulator/home/` contains isolated CLI device settings. `.local/emulator/installed.json` records the installed VM candidate, separately from physical-TV deployment evidence.
+`.local/emulator/config.json` selects the vendor/base/overlay paths, their hash, resources, localhost ports, SDK Node runtime and developer-key path. `.local/emulator/home/` contains isolated CLI device settings. `.local/emulator/installed.json` records the installed VM candidate, separately from physical-TV deployment evidence. An internal `refs/omarchytv/emulator-installed` source pin keeps that commit reachable when disposable integration refs are rebuilt; it is not a public branch or a ref to push.
 
 The controller intentionally does **not** download SDK software, accept a license, install packages, load modules, create a system VM definition, reset a guest disk or configure the physical TV. A fresh machine needs QEMU/KVM, a VNC viewer, the project CLI dependencies, a suitable Node runtime, and an independently prepared private config/image/overlay. Pin the guest SSH host key only after confirming the listening process is the newly created owned VM.
 
