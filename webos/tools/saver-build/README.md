@@ -20,6 +20,13 @@ bundle as ES5, including helpers. The existing webOS packaging script copies thi
 shared bundle; Android and other consumers can use it as well. No runtime npm
 packages, network calls or services are added.
 
+The original tte.js source remains unchanged. The exported TextEffect adapter
+adds an opt-in `blockGlyphs` renderer for terminal wordmarks: solid, fractional
+and quadrant blocks use exact cell rectangles instead of inset font ink. Other
+characters still use tte.js's normal font renderer. Cell alpha, colour, glow and
+animated positions are preserved. The saver selects this mode with full-size
+glyphs and unit line height so the authored block-art has no artificial gutters.
+
 The runtime shim supplies Array.from (including Map/Set iterators), Object.assign,
 String.padStart and Element.append only when absent. Promise, Map, Set, Symbol,
 Math.imul and requestAnimationFrame are native in the target engine. The saver

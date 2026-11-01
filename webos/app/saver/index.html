@@ -112,7 +112,7 @@ window.addEventListener('mousedown',dismiss,true);
       try{ if(fx)fx.destroy(); }catch(x){}
       pre.textContent=clean();fit();
       var frames=0,t0=0;
-      var spd=(S&&S.speed&&S.speed())||'normal',fo={effect:e,autoplay:false,background:'#000',fontScale:1,fps:60,seed:Math.floor(Math.random()*1e9),respectReducedMotion:false,onFinish:function(){}};
+      var spd=(S&&S.speed&&S.speed())||'normal',fo={effect:e,autoplay:false,background:'#000',fontScale:1,blockGlyphs:true,fps:60,seed:Math.floor(Math.random()*1e9),respectReducedMotion:false,onFinish:function(){}};
       if(spd==='slow')fo.duration=4200;else if(spd==='fast')fo.duration=1350;   // like Android; normal keeps each effect's own pace
       try{
         fx=new TTE.TextEffect(pre,fo);

@@ -13,7 +13,21 @@ test('legacy canvas overlay has explicit offsets instead of relying on CSS inset
 test('block-art saver uses full cell-size glyphs without extra line spacing', () => {
   const html = fs.readFileSync(path.join(root, 'webos/app/saver/index.html'), 'utf8');
   assert.match(html, /pre\{[^}]*line-height:1;/);
-  assert.match(html, /fontScale:1,/);
+  assert.match(html, /fontScale:1,blockGlyphs:true,/);
+});
+test('solid and half blocks cover fractional cell boundaries without font gutters', () => {
+  const blocks = require('../tools/saver-build/block-glyphs.cjs');
+  const rects = [], context = { fillRect: (...args) => rects.push(args) };
+  const renderer = { context, cellWidth: 18.1, cellHeight: 30 };
+  assert.equal(blocks.drawBlock(renderer, { character: '█', column: 0, row: 0 }), true);
+  blocks.drawBlock(renderer, { character: '█', column: 1, row: 0 });
+  assert.ok(rects[0][0] + rects[0][2] >= rects[1][0], 'adjacent blocks meet');
+  assert.equal(blocks.drawBlock(renderer, { character: 'A', column: 0, row: 0 }), false);
+  assert.deepEqual(blocks.rectangles('▀'), [[0, 0, 1, 0.5]]);
+  assert.deepEqual(blocks.rectangles('▄'), [[0, 0.5, 1, 0.5]]);
+  assert.deepEqual(blocks.rectangles('▌'), [[0, 0, 0.5, 1]]);
+  assert.deepEqual(blocks.rectangles('▐'), [[0.5, 0, 0.5, 1]]);
+  assert.equal(blocks.rectangles('▚').length, 2);
 });
 function legacy() {
   const context = vm.createContext({});
