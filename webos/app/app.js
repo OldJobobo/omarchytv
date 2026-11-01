@@ -938,6 +938,8 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     state.modalIdx = opts.focusIdx > 0 && opts.focusIdx < state.modalItems.length ? opts.focusIdx : 0;
     state.modalDigit = null;
     document.getElementById("modal-title").textContent = title;
+    // Keep ordinary menus narrow; input and prose-heavy dialogs retain their reading width.
+    document.getElementById("modal-box").className = "box" + (withInput || (sub && sub.length > 160) ? " wide" : "");
     var subEl = document.getElementById("modal-sub");
     subEl.textContent = sub || "";
     subEl.style.display = sub ? "block" : "none";
@@ -995,7 +997,10 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
     state.modalItems.forEach(function (it, idx) {
       var d = document.createElement("div");
       d.className = "modal-item" + (idx === state.modalIdx ? " focused" : "");
-      d.innerHTML = '<span>' + it.label + '</span><span class="mi-right">' + (it.right || "") + '</span>';
+      d.setAttribute("role", "option");
+      d.setAttribute("aria-selected", idx === state.modalIdx ? "true" : "false");
+      d.innerHTML = (it.icon ? '<span class="mi-icon" aria-hidden="true">' + escHtml(it.icon) + '</span>' : '') +
+        '<span class="mi-label">' + it.label + '</span><span class="mi-right">' + (it.right || "") + '</span>';
       d.onclick = function () { state.modalIdx = idx; if (it.act) it.act(); };
       list.appendChild(d);
       if (idx === state.modalIdx && d.scrollIntoView) d.scrollIntoView({ block: "nearest" });
@@ -1821,19 +1826,19 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   }
 
   function openOmarchyMenu() {
-    openModal("Omarchy Menu", "OmarchyTV " + APP_VERSION, [
-      { label: "🎬 Cinemarchy (Media, Streaming, Live TV & Snippets)", right: "C ›", act: function () { openCinemarchyModal(0); } },
-      { label: "🧩 " + tr("sys_plugins"), right: ((cfg.pluginSpacexTv ? 1 : 0) + (cfg.pluginGrokbot ? 1 : 0)) + " on ›", act: openPluginsModal },
-      { label: "Walker (app launcher)", right: "›", act: openWalkerModal },
-      { label: tr("sys_themes"), right: cfg.theme, act: openThemesModal },
-      { label: tr("wp_title"), right: "›", act: function () { openWallpaperModal(); } },
-      { label: tr("wx_title"), right: "°" + cfg.tempUnit, act: openWeatherModal },
-      { label: tr("sys_saver"), right: "›", act: openSaverModal },
-      { label: tr("sys_all"), right: "›", act: openAllSettingsModal },
-      { label: "⌨ Grok Bot (Omarchy TUI)", right: "›", act: openGrokTui },
-      { label: "Grok Bot & AI", right: "›", act: openGrokBotHub },
-      { label: "Web apps", right: "›", act: openWebAppsModal },
-      { label: "AI meter", right: cfg.aiCredits === "dollars" ? "dollars" : "percent", act: function () {
+    openModal("Omarchy", "", [
+      { icon: "󰕼", label: "Cinemarchy", right: "C ›", act: function () { openCinemarchyModal(0); } },
+      { icon: "", label: tr("sys_plugins"), right: "›", act: openPluginsModal },
+      { icon: "󰀻", label: "Apps", right: "›", act: openWalkerModal },
+      { icon: "󰸌", label: tr("sys_themes"), right: "›", act: openThemesModal },
+      { icon: "", label: tr("wp_title"), right: "›", act: function () { openWallpaperModal(); } },
+      { icon: "󰖐", label: tr("wx_title"), right: "›", act: openWeatherModal },
+      { icon: "󱄄", label: tr("sys_saver"), right: "›", act: openSaverModal },
+      { icon: "", label: "Setup", right: "›", act: openAllSettingsModal },
+      { icon: "", label: "Terminal", right: "›", act: openGrokTui },
+      { icon: "󰚩", label: "Grok Bot & AI", right: "›", act: openGrokBotHub },
+      { icon: "󰖟", label: "Web apps", right: "›", act: openWebAppsModal },
+      { icon: "󰾆", label: "AI meter", right: cfg.aiCredits === "dollars" ? "dollars" : "percent", act: function () {
         cfg.aiCredits = cfg.aiCredits === "dollars" ? "percent" : "dollars";
         saveCfg();
         renderWidgets();
