@@ -7,7 +7,7 @@ const path = require("path");
 const vm = require("vm");
 
 const APP = path.join(__dirname, "../app");
-const SRC = ["data.js", "app.js"].map((f) => [f, fs.readFileSync(path.join(APP, f), "utf8")]);
+const SRC = ["data.js", "theme.js", "app.js"].map((f) => [f, fs.readFileSync(path.join(APP, f), "utf8")]);
 
 function fakeElement() {
   const el = {
@@ -98,6 +98,24 @@ const SAMSUNG = [
   { id: "youtube", name: "YouTube", appId: "111299001912", tizenId: "111299001912", brand: "youtube" },
   { id: "hbomax", name: "HBO Max", appId: "3202301029760", tizenId: "3202301029760" }
 ];
+
+test("semantic palette roles are cached across remote-key renders and refreshed on theme changes", () => {
+  const t = boot({ cfg: { theme: "catppuccin", randomTheme: false, randomWallpaper: false } });
+  const resolve = t.ctx.OmarchyTheme.resolve;
+  let calls = 0;
+  t.ctx.OmarchyTheme.resolve = function () { calls++; return resolve.apply(this, arguments); };
+  t.press("ArrowRight"); t.press("ArrowLeft");
+  t.ctx.OmarchyTestAPI.switchWorkspace(4);
+  t.ctx.OmarchyTestAPI.switchWorkspace(0);
+  assert.strictEqual(calls, 0, "focus/workspace navigation reuses the resolved palette");
+  t.ctx.OmarchyTestAPI.setTheme("nord");
+  assert.strictEqual(calls, 1);
+  t.press("ArrowRight");
+  assert.strictEqual(calls, 1);
+  t.ctx.OMARCHY_DATA.themes.nord = Object.assign({}, t.ctx.OMARCHY_DATA.themes.nord);
+  t.ctx.OmarchyTestAPI.switchWorkspace(0);
+  assert.strictEqual(calls, 2, "replaced palette data invalidates the cache too");
+});
 
 test("webOS keeps the static LG app list", () => {
   const t = boot();

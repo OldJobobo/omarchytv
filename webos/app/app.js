@@ -300,36 +300,20 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   window.__OMARCHY_CFG = cfg;
 
   function hexToRgba(hex, a) {
-    var h = (hex || "#1a1b26").replace("#", "");
-    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-    var r = parseInt(h.slice(0,2), 16) || 26;
-    var g = parseInt(h.slice(2,4), 16) || 27;
-    var b = parseInt(h.slice(4,6), 16) || 38;
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    return window.OmarchyTheme.hexToRgba(hex, a);
   }
 
+  // Palette objects are immutable data. Resolve semantic aliases once per theme,
+  // not on every remote-key render; authored RGB values are never adjusted.
+  var themeRoleSource, themeRoleName, themeRoleCache;
   function currentThemeObj() {
-    var t = DATA.themes[cfg.theme] || DATA.themes["tokyo-night"] || {};
-    var n = t.normal || {};
-    var b = t.bright || {};
-    var bg = t.background || t.bg || "#1a1b26";
-    var fg = t.foreground || t.fg || "#a9b1d6";
-    return {
-      name: cfg.theme || "tokyo-night",
-      bg: bg,
-      bgAlt: t.lighter_background || n.black || "#24283b",
-      fg: fg,
-      fgBright: t.bright_foreground || b.white || fg,
-      fgDim: t.dark_foreground || b.black || "#565f89",
-      muted: t.muted || b.black || "#414868",
-      accent: t.accent || t.blue || n.blue || "#7aa2f7",
-      accent2: t.bright_magenta || t.magenta || n.magenta || "#bb9af7",
-      magenta: t.magenta || n.magenta || "#bb9af7",
-      green: t.green || n.green || "#9ece6a",
-      yellow: t.yellow || n.yellow || "#e0af68",
-      red: t.red || n.red || "#f7768e",
-      cyan: t.cyan || n.cyan || "#7dcfff"
-    };
+    var source = DATA.themes[cfg.theme] || DATA.themes["tokyo-night"] || {};
+    if (themeRoleSource !== source || themeRoleName !== cfg.theme) {
+      themeRoleSource = source;
+      themeRoleName = cfg.theme;
+      themeRoleCache = window.OmarchyTheme.resolve(source, cfg.theme);
+    }
+    return themeRoleCache;
   }
 
   var TEXT_SCALES = [[0.9, "ts_small"], [1, "ts_normal"], [1.15, "ts_large"], [1.3, "ts_xlarge"]];
@@ -348,21 +332,8 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
   function applyTheme() {
     var t = currentThemeObj();
     var r = document.documentElement.style;
-    r.setProperty("--t-bg", t.bg);
-    r.setProperty("--t-bg-alt", t.bgAlt);
-    r.setProperty("--t-fg", t.fg);
-    r.setProperty("--t-fg-bright", t.fgBright);
-    r.setProperty("--t-fg-dim", t.fgDim);
-    r.setProperty("--t-muted", t.muted);
-    r.setProperty("--t-accent", t.accent);
-    r.setProperty("--t-accent2", t.accent2);
-    r.setProperty("--t-green", t.green);
-    r.setProperty("--t-yellow", t.yellow);
-    r.setProperty("--t-red", t.red);
-    r.setProperty("--t-cyan", t.cyan);
-    r.setProperty("--win-bg", hexToRgba(t.bg, cfg.opacity));
-    r.setProperty("--bar-bg", hexToRgba(t.bg, Math.min(0.88, cfg.opacity + 0.05)));
-    r.setProperty("--popup-bg", hexToRgba(t.bg, 0.95));
+    var variables = window.OmarchyTheme.cssVariables(t, cfg.opacity);
+    Object.keys(variables).forEach(function (key) { r.setProperty(key, variables[key]); });
 
     var wl = document.getElementById("wallpaper-layer");
     var wv = document.getElementById("wallpaper-video");
@@ -735,10 +706,10 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
 
   function buildTileHTML(app) {
     if (app.brand === "tv") {
-      return '<div class="tile-banner" style="background:var(--t-bg-alt);">' +
+      return '<div class="tile-banner tile-themed">' +
         '<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="var(--t-accent)" stroke-width="2">' +
         '<rect x="2" y="3" width="20" height="14"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' +
-        '<div style="font-size:calc(28px * var(--ts, 1));font-weight:700;color:var(--t-fg-bright);margin-top:6px;">' + app.name + '</div></div>';
+        '<div style="font-size:calc(28px * var(--ts, 1));font-weight:700;margin-top:6px;">' + app.name + '</div></div>';
     }
     // Tizen: the app's own installed icon wins over text tiles; if every candidate breaks, a generic app icon + name.
     if (app.iconPaths) {
@@ -753,7 +724,7 @@ var CINEMARCHY_VERSION = "0.1.0-alpha";
         (icon ? '<img class="tile-icon" src="' + escHtml(icon) + '" alt="">' : "") + fallback + '</div>';
     }
     if (cfg.textTiles) {
-      return '<div class="tile-banner" style="background:var(--t-bg-alt);"><div class="tile-text-only">' + app.name + '</div></div>';
+      return '<div class="tile-banner tile-themed"><div class="tile-text-only">' + app.name + '</div></div>';
     }
     return '<div class="tile-banner" style="background:' + (app.bg || "var(--t-bg-alt)") + ';">' +
       '<div style="font-size:calc(30px * var(--ts, 1));font-weight:700;letter-spacing:1.2px;color:' + (app.fg || "var(--t-fg-bright)") + ';">' + (app.sub || app.name) + '</div>' +

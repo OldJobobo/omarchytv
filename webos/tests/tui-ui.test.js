@@ -7,7 +7,7 @@ const path = require("path");
 const vm = require("vm");
 
 const APP = path.join(__dirname, "../app");
-const SRC = ["data.js", "tui.js", "app.js"].map((f) => [f, fs.readFileSync(path.join(APP, f), "utf8")]);
+const SRC = ["data.js", "theme.js", "tui.js", "app.js"].map((f) => [f, fs.readFileSync(path.join(APP, f), "utf8")]);
 
 function fakeElement() {
   const el = {

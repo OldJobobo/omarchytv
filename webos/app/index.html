@@ -21,6 +21,11 @@
 :root {
   --t-bg: #1a1b26;
   --t-bg-alt: #24283b;
+  --t-bg-dark: #13141c;
+  --t-bg-deep: #0e0e14;
+  --t-selection-bg: #292e42;
+  --t-selection-fg: #c0caf5;
+  --t-focus: #7aa2f7;
   --t-fg: #a9b1d6;
   --t-fg-bright: #c0caf5;
   --t-fg-dim: #565f89;
@@ -32,8 +37,9 @@
   --t-red: #f7768e;
   --t-cyan: #7dcfff;
   --win-bg: rgba(26, 27, 38, 0.75);
-  --bar-bg: rgba(26, 27, 38, 0.72);
-  --popup-bg: rgba(26, 27, 38, 0.94);
+  --bar-bg: rgba(19, 20, 28, 0.8);
+  --popup-bg: rgba(36, 40, 59, 0.95);
+  --scrim-bg: rgba(14, 14, 20, 0.55);
 }
 
 * {
@@ -127,7 +133,7 @@ html, body {
 
 .bar-btn.focused {
   color: var(--t-fg-bright);
-  border-bottom-color: var(--t-accent);
+  border-bottom-color: var(--t-focus);
 }
 
 .bar-btn.logo-btn {
@@ -163,7 +169,7 @@ html, body {
 }
 
 .bar-icon-btn.focused {
-  border-bottom-color: var(--t-accent);
+  border-bottom-color: var(--t-focus);
 }
 
 .bar-icon-btn svg {
@@ -178,7 +184,7 @@ html, body {
 
 .bar-icon-btn.focused svg,
 .bar-btn.logo-btn.focused svg {
-  stroke: var(--t-accent);
+  stroke: var(--t-focus);
 }
 
 #bar-tip {
@@ -212,7 +218,7 @@ html, body {
 }
 
 .box.focused {
-  --box-border: var(--t-accent);
+  --box-border: var(--t-focus);
   --box-bw: 3px;
 }
 
@@ -406,14 +412,14 @@ html, body {
 
 .app-tile.focused {
   transform: scale(1.05);
-  border: 4px solid var(--t-accent);
+  border: 4px solid var(--t-focus);
   outline: 2px solid var(--t-bg);
   z-index: 5;
 }
 
 .app-tile.moving {
   transform: scale(1.05) translateY(-10px);
-  border: 4px dashed var(--t-accent);
+  border: 4px dashed var(--t-focus);
   z-index: 6;
 }
 
@@ -428,6 +434,25 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 12px;
+}
+
+/* Theme-colored tiles follow the selection surface; real app artwork stays branded. */
+.app-tile .tile-themed {
+  background: var(--t-bg-alt);
+  color: var(--t-fg-bright);
+}
+
+.app-tile.focused .tile-themed {
+  background: var(--t-selection-bg);
+  color: var(--t-selection-fg);
+}
+
+.app-tile.focused .tile-themed .tile-text-only {
+  color: var(--t-selection-fg);
+}
+
+.app-tile.focused .tile-themed svg {
+  stroke: var(--t-selection-fg);
 }
 
 .app-tile .tile-text-only {
@@ -520,9 +545,9 @@ html, body {
 }
 
 .ws4-btn.focused {
-  color: var(--t-accent);
-  border: 3px solid var(--t-accent);
-  background: var(--t-bg-alt);
+  color: var(--t-selection-fg);
+  border: 3px solid var(--t-focus);
+  background: var(--t-selection-bg);
 }
 
 /* Workspace 5: System settings list */
@@ -553,12 +578,13 @@ html, body {
 }
 
 .sys-row.focused {
-  background: var(--t-bg-alt);
-  border: 3px solid var(--t-accent);
+  background: var(--t-selection-bg);
+  border: 3px solid var(--t-focus);
 }
 
-.sys-row.focused .sys-lbl {
-  color: var(--t-accent);
+.sys-row.focused .sys-lbl,
+.sys-row.focused .sys-val {
+  color: var(--t-selection-fg);
 }
 
 /* Arrange Panels overlay */
@@ -583,7 +609,7 @@ html, body {
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--scrim-bg);
   z-index: 100;
   display: none;
   align-items: center;
@@ -625,7 +651,7 @@ html, body {
 #modal-input {
   width: 100%;
   background: var(--t-bg-alt);
-  border: 2px solid var(--t-accent);
+  border: 2px solid var(--t-focus);
   color: var(--t-fg-bright);
   font-family: 'CaskaydiaMono', monospace;
   font-size: calc(22px * var(--ts, 1));
@@ -658,9 +684,13 @@ html, body {
 }
 
 .modal-item.focused {
-  background: var(--t-bg-alt);
-  color: var(--t-accent);
-  border-left-color: var(--t-accent);
+  background: var(--t-selection-bg);
+  color: var(--t-selection-fg);
+  border-left-color: var(--t-focus);
+}
+
+.modal-item.focused .mi-right {
+  color: var(--t-selection-fg);
 }
 
 /* Toast notification */
@@ -700,15 +730,14 @@ html, body {
   height: 100%;
   border: none;
 }
-</style>
-<style>
+/* Keep theme-dependent rules in one sheet: the Chrome 38 fallback rewrites it. */
 /* v2.13: official YouTube embed overlay + companion idle bob */
 #yt-embed{display:none;position:fixed;inset:0;z-index:90;background:#000;}
 #yt-embed.open{display:block;}
 #yt-embed iframe{position:absolute;left:0;top:0;width:100%;height:86%;border:0;}
 #yt-embed-rail{position:absolute;left:0;right:0;bottom:44px;text-align:center;}
 .yt-chip{display:inline-block;margin:0 6px;padding:6px 14px;border:1px solid var(--t-accent2);color:var(--t-fg);font-size:calc(16px * var(--ts, 1));}
-.yt-chip.focused{background:var(--t-accent);color:var(--t-bg);}
+.yt-chip.focused{background:var(--t-selection-bg);color:var(--t-selection-fg);border-color:var(--t-focus);}
 .yt-note{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:var(--t-fg);opacity:.6;font-size:calc(14px * var(--ts, 1));}
 @keyframes gbBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 #grokbot-companion.gb-live{animation:gbBob 4.2s ease-in-out infinite;}
@@ -724,19 +753,19 @@ html, body {
 .tui-line{white-space:pre-wrap;word-break:break-word;color:var(--t-fg);}
 .tui-me{color:var(--t-accent2);}
 .tui-dim{opacity:.7;}
-.tui-ok{color:var(--t-accent);}
-.tui-err{color:#ff5f5f;}
+.tui-ok{color:var(--t-green);}
+.tui-err{color:var(--t-red);}
 .tui-bot{color:var(--t-fg-bright);}
 #grokbot-sub.gb-bubble{color:var(--t-fg);opacity:1;}
 /* 2.13.8 refresh: only the moving avatar, no frame; a thin ring only while focused */
 #grokbot-companion.box{background:transparent;border:none;padding:0;}
-#grokbot-companion.box.focused{outline:2px solid var(--t-accent);outline-offset:6px;border-radius:12px;}
+#grokbot-companion.box.focused{outline:2px solid var(--t-focus);outline-offset:6px;border-radius:12px;}
 #grokbot-sub{text-shadow:0 1px 3px rgba(0,0,0,.9);}
 #grokbot-sub:empty{display:none;}
 .gb-msg{margin:2px 0 6px;padding:4px 10px;border-left:3px solid var(--t-accent2);white-space:pre-wrap;text-align:left;}
 .gb-msg.gb-me{border-left-color:var(--t-fg);opacity:.75;}
 .gb-credit{opacity:.55;font-size:calc(13px * var(--ts, 1));margin-top:6px;}
-.extra-focused{outline:3px solid var(--t-accent);outline-offset:4px;box-shadow:0 0 18px var(--t-accent);}
+.extra-focused{outline:3px solid var(--t-focus);outline-offset:4px;box-shadow:0 0 18px var(--t-focus);}
 #grokbot-eyes{display:flex;align-items:center;gap:10px;}
 .gb-orb{display:block;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45));}
 </style>
@@ -982,6 +1011,7 @@ html, body {
 <script src="grokdirect.js"></script>
 <script src="tvapps.js"></script>
 <script src="tui.js"></script>
+<script src="theme.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
