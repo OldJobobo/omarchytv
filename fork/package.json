@@ -1,0 +1,11 @@
+{
+  "name": "omarchytv-fork-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pinned local ES5 validation and webOS packaging tools; never deploys",
+  "engines": {"node": ">=18"},
+  "dependencies": {
+    "@webos-tools/cli": "3.0.2",
+    "acorn": "8.15.0"
+  }
+}

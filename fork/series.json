@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "workflowBranch": "fork/workflow",
+  "integrationBranch": "livingroom",
+  "features": [
+    "fix/semantic-theme-roles",
+    "fix/legacy-display-state",
+    "fix/disabled-weather-fetch",
+    "feat/home-profile"
+  ]
+}

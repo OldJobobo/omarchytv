@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "home": {
+    "schema": 1,
+    "apps": [
+      {"id": "player", "name": "Local Player", "appId": "org.example.player", "brand": "plex"}
+    ],
+    "defaults": {
+      "randomTheme": false,
+      "randomWallpaper": false,
+      "wallpaperIntro": false,
+      "wallpaperLoop": false,
+      "tvApps": false,
+      "logoAnim": false,
+      "pluginSpacexTv": false,
+      "pluginGrokbot": false,
+      "pcSimulated": false,
+      "widgets": {"term": true, "weather": false, "pc": false, "ai": false, "deploy": false},
+      "saverIdleMin": 0,
+      "saverSound": false,
+      "offIdleMin": 0
+    },
+    "terminalSummary": "apps 1 authored fallback entry"
+  },
+  "excludedThemes": [],
+  "inspectable": false,
+  "maxAppBytes": 6291456
+}

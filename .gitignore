@@ -33,3 +33,6 @@ webos/app/saver/tte-js/
 webos/app/saver/screensaver-tv.txt
 *.ipk
 *.wgt
+# Fork operator state: never publish profiles, recovery payloads or personal art.
+/.local/
+/fork/node_modules/
