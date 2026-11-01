@@ -6,6 +6,7 @@
     "fix/semantic-theme-roles",
     "fix/legacy-display-state",
     "fix/disabled-weather-fetch",
-    "feat/home-profile"
+    "feat/home-profile",
+    "feat/compact-tv-menu"
   ]
 }
